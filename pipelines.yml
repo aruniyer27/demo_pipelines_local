@@ -2,7 +2,7 @@ resources:
   - name: gosvc_gitRepo
     type: GitRepo
     configuration:
-      path: sdemo/go-service
+      path: Varsha-Arun/go-service
       gitProvider: varsha_github
 
   - name: gosvc_build_info
@@ -22,7 +22,7 @@ resources:
   - name: be_gitRepo
     type: GitRepo
     configuration:
-      path: sdemo/java-backend
+      path: Varsha-Arun/java-backend
       gitProvider: varsha_github
 
   - name: appl_build_info_output
@@ -49,7 +49,7 @@ resources:
   - name: fe_gitRepo
     type: GitRepo
     configuration:
-      path: sdemo/vue-frontend
+      path: Varsha-Arun/vue-frontend
       gitProvider: varsha_github
 
   - name: release_bundle
