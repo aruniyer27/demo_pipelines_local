@@ -135,7 +135,7 @@ pipelines:
           inputResources:
             - name: be_gitRepo
           integrations:
-            - name: demoArt
+            - name: varshaArt
           runtime:
             type: image
             image:
