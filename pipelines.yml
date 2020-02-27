@@ -8,7 +8,7 @@ resources:
   - name: gosvc_build_info
     type: BuildInfo
     configuration:
-      sourceArtifactory: demoArt
+      sourceArtifactory: varshaArt
       buildName: svc_build
       buildNumber: 1
 
