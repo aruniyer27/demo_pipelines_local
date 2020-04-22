@@ -92,12 +92,13 @@ pipelines:
         configuration:
           dockerFileLocation: .
           dockerFileName: Dockerfile
-          dockerImageName: 146.148.104.158:8082/docker-local/gosvc
+          dockerImageName: $int_artUrl_key:8082/docker-local/gosvc
           dockerImageTag: ${run_number}
           inputResources:
             - name: gosvc_gitRepo
           integrations:
             - name: varshaArt
+            - name: artUrl
 
       - name: push_svc
         type: DockerPush
@@ -190,7 +191,7 @@ pipelines:
         type: Bash
         configuration:
           environmentVariables:
-            dockerImageName: 146.148.104.158:8082/docker-local/app
+            dockerImageName: $int_artUrl_key:8082/docker-local/app
             dockerImageTag: ${run_number}
           inputResources:
             - name: be_gitRepo
@@ -200,6 +201,7 @@ pipelines:
             - name: publish_frontend
           integrations:
             - name: varshaArt
+            - name: artUrl
         execution:
           onStart:
             - rm -rf $run_dir/workspace/jfrog
@@ -210,7 +212,7 @@ pipelines:
             - add_run_variables ${step_name}_buildName=${pipeline_name}
             - docker build --pull --no-cache -t $dockerImageName:$dockerImageTag --build-arg REGISTRY=${int_varshaArt_url} .
             - jfrog rt bce $pipeline_name $run_number
-            - jfrog rt docker-push 146.148.104.158:8082/docker-local/app:$run_number docker-local --build-name=$pipeline_name --build-number=$run_number
+            - jfrog rt docker-push $int_artUrl_key:8082/docker-local/app:$run_number docker-local --build-name=$pipeline_name --build-number=$run_number
             - add_run_files /tmp/jfrog/. jfrog
 
       - name: publish_app_build
@@ -278,9 +280,10 @@ pipelines:
 #        configuration:
 #          environmentVariables:
 #            docker_repository: demoPipelines
-#            artifactory_address: 146.148.104.158:8082
+#            artifactory_address: $int_artUrl_key:8082
 #          integrations:
 #            - name: demoEdge
+#            - name: artUrl
 #          inputResources:
 #            - name: deploy_vm
 #            - name: gosvc_promoted_build_info
