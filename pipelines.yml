@@ -90,15 +90,16 @@ pipelines:
       - name: bld_svc
         type: DockerBuild
         configuration:
+          integrations:
+            - name: demoArt
+            - name: artUrl
           dockerFileLocation: .
           dockerFileName: Dockerfile
           dockerImageName: $int_artUrl_key:8082/docker-local/gosvc
           dockerImageTag: ${run_number}
           inputResources:
             - name: gosvc_gitRepo
-          integrations:
-            - name: demoArt
-            - name: artUrl
+          
 
       - name: push_svc
         type: DockerPush
@@ -190,6 +191,9 @@ pipelines:
       - name: build_app
         type: Bash
         configuration:
+          integrations:
+            - name: demoArt
+            - name: artUrl
           environmentVariables:
             dockerImageName: $int_artUrl_key:8082/docker-local/app
             dockerImageTag: ${run_number}
@@ -199,9 +203,6 @@ pipelines:
           inputSteps:
             - name: bld_backend
             - name: publish_frontend
-          integrations:
-            - name: demoArt
-            - name: artUrl
         execution:
           onStart:
             - rm -rf $run_dir/workspace/jfrog
