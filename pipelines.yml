@@ -8,14 +8,14 @@ resources:
   - name: gosvc_build_info
     type: BuildInfo
     configuration:
-      sourceArtifactory: varshaArt
+      sourceArtifactory: demoArt
       buildName: svc_build
       buildNumber: 1
 
   - name: gosvc_promoted_build_info
     type: BuildInfo
     configuration:
-      sourceArtifactory: varshaArt
+      sourceArtifactory: demoArt
       buildName: svc_build
       buildNumber: 1
 
@@ -28,21 +28,21 @@ resources:
   - name: appl_build_info_output
     type: BuildInfo
     configuration:
-      sourceArtifactory: varshaArt
+      sourceArtifactory: demoArt
       buildName: backend_build
       buildNumber: 1
-      
+
   - name: appl_build_info
     type: BuildInfo
     configuration:
-      sourceArtifactory: varshaArt
+      sourceArtifactory: demoArt
       buildName: backend_build
       buildNumber: 1
 
   - name: appl_promoted_build_info
     type: BuildInfo
     configuration:
-      sourceArtifactory: varshaArt
+      sourceArtifactory: demoArt
       buildName: backend_build
       buildNumber: 1
 
@@ -55,21 +55,21 @@ resources:
   - name: release_bundle
     type: ReleaseBundle
     configuration:
-      sourceDistribution: varshaDist
+      sourceDistribution: demoDist
       name: demo_rb
       version: v1.0.0
 
   - name: signed_bundle
     type: ReleaseBundle
     configuration:
-      sourceDistribution: varshaDist
+      sourceDistribution: demoDist
       name: demo_rb
       version: v1.0.0
 
   - name: distribution_rules
     type: DistributionRule
     configuration:
-      sourceDistribution: varshaDist
+      sourceDistribution: demoDist
       serviceName: "*"
       siteName: "*"
       cityName: "*"
@@ -77,12 +77,12 @@ resources:
         - "CN"
         - "GB"
 
-  # - name: deploy_vm
-  #   type: VmCluster
-  #   configuration:
-  #     sshKey: deploySsh
-  #     targets:
-  #       - 167.71.157.57
+  - name: deploy_vm
+    type: VmCluster
+    configuration:
+      sshKey: demo_ssh
+      targets:
+        - 130.211.121.141
 
 pipelines:
   - name: demo_gosvc
@@ -97,27 +97,27 @@ pipelines:
           inputResources:
             - name: gosvc_gitRepo
           integrations:
-            - name: varshaArt
+            - name: demoArt
 
       - name: push_svc
         type: DockerPush
         configuration:
           targetRepository: docker-local
-          forceXrayScan: true
+          forceXrayScan: false
           autoPublishBuildInfo: true
           integrations:
-            - name: varshaArt
+            - name: demoArt
           inputSteps:
             - name: bld_svc
           outputResources:
             - name: gosvc_build_info
-            
+
       - name: promote_svc_build
         type: PromoteBuild
         configuration:
           targetRepository: demo-pipelines
           integrations:
-            - name: varshaArt
+            - name: demoArt
           inputResources:
             - name: gosvc_build_info
           outputResources:
@@ -135,7 +135,7 @@ pipelines:
           inputResources:
             - name: be_gitRepo
           integrations:
-            - name: varshaArt
+            - name: demoArt
           runtime:
             type: image
             image:
@@ -157,7 +157,7 @@ pipelines:
           inputResources:
             - name: fe_gitRepo
           integrations:
-            - name: varshaArt
+            - name: demoArt
 
       - name: pack_frontend
         type: Bash
@@ -165,7 +165,7 @@ pipelines:
           inputSteps:
             - name: bld_frontend
           integrations:
-            - name: varshaArt
+            - name: demoArt
         execution:
           onStart:
             - export tempStateLocation="$step_tmp_dir/npmSourceState"
@@ -181,7 +181,7 @@ pipelines:
           inputSteps:
             - name: pack_frontend
           integrations:
-            - name: varshaArt
+            - name: demoArt
         execution:
           onStart:
             - export inputNpmBuildStepName="bld_frontend"
@@ -194,21 +194,21 @@ pipelines:
             dockerImageTag: ${run_number}
           inputResources:
             - name: be_gitRepo
-              trigger: false 
+              trigger: false
           inputSteps:
             - name: bld_backend
             - name: publish_frontend
           integrations:
-            - name: varshaArt
+            - name: demoArt
         execution:
           onStart:
             - rm -rf $run_dir/workspace/jfrog
-            - retry_command jfrog rt config --url $int_varshaArt_url --user $int_varshaArt_user --apikey $int_varshaArt_apikey --interactive=false
+            - retry_command jfrog rt config --url $int_demoArt_url --user $int_demoArt_user --apikey $int_demoArt_apikey --interactive=false
             - pushd $res_be_gitRepo_resourcePath
             - add_run_variables buildStepName=${step_name}
             - add_run_variables ${step_name}_buildNumber=${run_number}
             - add_run_variables ${step_name}_buildName=${pipeline_name}
-            - docker build --pull --no-cache -t $dockerImageName:$dockerImageTag --build-arg REGISTRY=${int_varshaArt_url} .
+            - docker build --pull --no-cache -t $dockerImageName:$dockerImageTag --build-arg REGISTRY=${int_demoArt_url} .
             - jfrog rt bce $pipeline_name $run_number
             - jfrog rt docker-push 146.148.104.158:8082/docker-local/app:$run_number docker-local --build-name=$pipeline_name --build-number=$run_number
             - add_run_files /tmp/jfrog/. jfrog
@@ -227,7 +227,7 @@ pipelines:
         configuration:
           targetRepository: demo-pipelines
           integrations:
-            - name: varshaArt
+            - name: demoArt
           inputResources:
             - name: appl_build_info
           outputResources:
@@ -256,7 +256,6 @@ pipelines:
               ## Heading
                 * Bullet
                 * Points
-            
       - name: sign
         type: SignReleaseBundle
         configuration:
@@ -273,22 +272,22 @@ pipelines:
             - name: signed_bundle
             - name: distribution_rules
 
-#      - name: deploy
-#        type: Bash
-#        configuration:
-#          environmentVariables:
-#            docker_repository: demoPipelines
-#            artifactory_address: 146.148.104.158:8082
-#          integrations:
-#            - name: demoEdge
-#          inputResources:
-#            - name: deploy_vm
-#            - name: gosvc_promoted_build_info
-#              trigger: false
-#            - name: appl_promoted_build_info
-#              trigger: false
-#          inputSteps:
-#            - name: distribute
-#        execution:
-#          onExecute:
-#            - ssh -i ~/.ssh/deploy_vm root@${res_deploy_vm_targets_0} sudo /root/deploy-to-prod-test.sh $artifactory_address $docker_repository $int_edge_art_apikey $res_appl_promoted_build_info_buildNumber $res_gosvc_promoted_build_info_buildNumber
+      - name: deploy
+        type: Bash
+        configuration:
+          environmentVariables:
+            docker_repository: demo-pipelines
+            artifactory_address: 146.148.104.158:8082
+          integrations:
+            - name: edge_art
+          inputResources:
+            - name: deploy_vm
+            - name: gosvc_promoted_build_info
+              trigger: false
+            - name: appl_promoted_build_info
+              trigger: false
+          inputSteps:
+            - name: distribute
+        execution:
+          onExecute:
+            - ssh -i ~/.ssh/deploy_vm sdemo@${res_deploy_vm_targets_0} sudo /home/sdemo/deploy-to-prod-test.sh $artifactory_address $docker_repository $int_edge_art_apikey $res_appl_promoted_build_info_buildNumber $res_gosvc_promoted_build_info_buildNumber
