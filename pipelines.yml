@@ -2,7 +2,7 @@ resources:
   - name: gosvc_gitRepo
     type: GitRepo
     configuration:
-      path: sdemo/go-service
+      path: aruniyer27/go-service
       gitProvider: sdemo_github
 
   - name: gosvc_build_info
@@ -22,7 +22,7 @@ resources:
   - name: be_gitRepo
     type: GitRepo
     configuration:
-      path: sdemo/java-backend
+      path: aruniyer27/java-backend
       gitProvider: sdemo_github
 
   - name: appl_build_info_output
@@ -49,7 +49,7 @@ resources:
   - name: fe_gitRepo
     type: GitRepo
     configuration:
-      path: sdemo/vue-frontend
+      path: aruniyer27/vue-frontend
       gitProvider: sdemo_github
 
   - name: release_bundle
